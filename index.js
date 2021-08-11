@@ -54,7 +54,7 @@ client.on('messageCreate', async msg => {
     embed.setColor('GREEN')
     embed.setTitle('コマンド')
     embed.addField('/set <RGB>', '色を設定します。指定した色が使用できない場合は一番近い色に設定されます。')
-    embed.addField('/color <RGB>', '色を設定します。')
+    embed.addField('/color [RGB]', '色を設定します。')
     if (msg.member.permissions.has(8)) {
       embed.addField('/setup', 'すごい染料を作成します。')
       embed.addField('/removeall', 'すごい染料をすべて削除します。')
