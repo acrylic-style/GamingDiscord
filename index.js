@@ -91,6 +91,7 @@ client.on('messageCreate', async msg => {
     const embed = new Discord.MessageEmbed()
     embed.setColor(color)
     embed.setTitle(`すごい染料 (1)`)
+    embed.footer = { text: msg.author.tag }
     const values = roles.values()
     for (let i = 0; i < 10; i++) {
       const role = values.next().value
@@ -144,6 +145,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
   const embed = reaction.message.embeds[0]
   if (!embed.title.startsWith('すごい染料 (')) return
   if (embed.fields.length === 0) return
+  reaction.users.remove(user)
   let index = -1
   if (reaction.emoji.name === emojis.arrow_backward) index = -2
   if (reaction.emoji.name === emojis.one) index = 0
@@ -158,13 +160,13 @@ client.on('messageReactionAdd', async (reaction, user) => {
   if (reaction.emoji.name === emojis.ten) index = 9
   if (reaction.emoji.name === emojis.arrow_forward) index = -3
   if (index === -1) return
-  reaction.users.remove(user)
   let page = parseInt(embed.title.replace(/.*\((\d+)\)/, '$1'))
   const originalColor = embed.color
   const roles = (await reaction.message.guild.roles.fetch()).filter(role => role.name === 'すごい染料')
   // duplicate code? i don't care.
   if (index === -2) {
     // backward
+    if (embed.footer.text !== user.tag) return
     if (page <= 1) return
     roles.sort((a, b) => diffColor(originalColor, a.color) - diffColor(originalColor, b.color))
     page--
@@ -172,6 +174,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
     const e = new Discord.MessageEmbed()
     e.setColor(originalColor)
     e.setTitle(`すごい染料 (${page})`)
+    e.footer = embed.footer
     let o = 0
     for (let i = 0; i < 10 * page; i++) {
       const role = values.next().value
@@ -185,6 +188,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
   }
   if (index === -3) {
     // forward
+    if (embed.footer.text !== user.tag) return
     if (Math.floor(roles.length / 10) > page) return
     roles.sort((a, b) => diffColor(originalColor, a.color) - diffColor(originalColor, b.color))
     page++
@@ -192,6 +196,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
     const e = new Discord.MessageEmbed()
     e.setColor(originalColor)
     e.setTitle(`すごい染料 (${page})`)
+    e.footer = embed.footer
     let o = 0
     for (let i = 0; i < 10 * page; i++) {
       const role = values.next().value
