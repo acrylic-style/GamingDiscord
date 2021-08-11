@@ -13,6 +13,7 @@ const logger = LoggerFactory.getLogger('client', 'green')
 const bannedColors = [0x000000, 0x444444, 0x444488]
 
 const emojis = {
+  arrow_backward: '◀️',
   one: '1️⃣',
   two: '2️⃣',
   three: '3️⃣',
@@ -23,6 +24,7 @@ const emojis = {
   eight: '8️⃣',
   nine: '9️⃣',
   ten: '🔟',
+  arrow_forward: '▶️',
 }
 
 const zero = (length, o) => {
@@ -78,6 +80,7 @@ client.on('messageCreate', async msg => {
     embed.setDescription(`色を${zero(6, roles.first().color.toString(16))}に設定しました。`)
     msg.reply({ embeds: [embed] })
   } else if (args[0] === '//color') {
+    if (args.length === 1) args[1] = '000000'
     let color = parseInt(args[1], 16)
     if (isNaN(color)) {
       color = parseInt(args[1], 10)
@@ -86,14 +89,15 @@ client.on('messageCreate', async msg => {
     const roles = (await msg.guild.roles.fetch()).filter(role => role.name === 'すごい染料')
     roles.sort((a, b) => diffColor(color, a.color) - diffColor(color, b.color))
     const embed = new Discord.MessageEmbed()
-    embed.setColor(roles.first().color)
-    embed.setTitle('すごい染料')
+    embed.setColor(color)
+    embed.setTitle(`すごい染料 (1)`)
     const values = roles.values()
     for (let i = 0; i < 10; i++) {
       const role = values.next().value
       embed.addField(`${i + 1}. #${zero(6, role.color.toString(16))}`, `<@&${role.id}>`)
     }
     const message = await msg.reply({ embeds: [embed], failIfNotExists: false })
+    message.react(emojis.arrow_backward)
     message.react(emojis.one)
     message.react(emojis.two)
     message.react(emojis.three)
@@ -104,6 +108,7 @@ client.on('messageCreate', async msg => {
     message.react(emojis.eight)
     message.react(emojis.nine)
     message.react(emojis.ten)
+    message.react(emojis.arrow_forward)
   } else if (msg.member.permissions.has(8) && args[0] === '//setup') {
     const roles = await msg.guild.roles.fetch()
     if (250 - roles.size < 122) {
@@ -137,9 +142,10 @@ client.on('messageReactionAdd', async (reaction, user) => {
   if (reaction.message.author.id !== client.user.id) return
   if (reaction.message.embeds.length === 0) return
   const embed = reaction.message.embeds[0]
-  if (embed.title !== 'すごい染料') return
-  if (embed.fields.length !== 10) return
+  if (!embed.title.startsWith('すごい染料 (')) return
+  if (embed.fields.length === 0) return
   let index = -1
+  if (reaction.emoji.name === emojis.arrow_backward) index = -2
   if (reaction.emoji.name === emojis.one) index = 0
   if (reaction.emoji.name === emojis.two) index = 1
   if (reaction.emoji.name === emojis.three) index = 2
@@ -150,9 +156,55 @@ client.on('messageReactionAdd', async (reaction, user) => {
   if (reaction.emoji.name === emojis.eight) index = 7
   if (reaction.emoji.name === emojis.nine) index = 8
   if (reaction.emoji.name === emojis.ten) index = 9
+  if (reaction.emoji.name === emojis.arrow_forward) index = -3
   if (index === -1) return
-  const color = parseInt(embed.fields[index].name.replace(/.*#(.*)/, '$1'), 16)
+  reaction.users.remove(user)
+  let page = parseInt(embed.title.replace(/.*\((\d+)\)/, '$1'))
+  const originalColor = embed.color
   const roles = (await reaction.message.guild.roles.fetch()).filter(role => role.name === 'すごい染料')
+  // duplicate code? i don't care.
+  if (index === -2) {
+    // backward
+    if (page <= 1) return
+    roles.sort((a, b) => diffColor(originalColor, a.color) - diffColor(originalColor, b.color))
+    page--
+    const values = roles.values()
+    const e = new Discord.MessageEmbed()
+    e.setColor(originalColor)
+    e.setTitle(`すごい染料 (${page})`)
+    let o = 0
+    for (let i = 0; i < 10 * page; i++) {
+      const role = values.next().value
+      if (!role) break
+      if (i >= 10 * (page - 1)) {
+        e.addField(`${++o}. #${zero(6, role.color.toString(16))}`, `<@&${role.id}>`)
+      }
+    }
+    reaction.message.edit({ embeds: [e] })
+    return
+  }
+  if (index === -3) {
+    // forward
+    if (Math.floor(roles.length / 10) > page) return
+    roles.sort((a, b) => diffColor(originalColor, a.color) - diffColor(originalColor, b.color))
+    page++
+    const values = roles.values()
+    const e = new Discord.MessageEmbed()
+    e.setColor(originalColor)
+    e.setTitle(`すごい染料 (${page})`)
+    let o = 0
+    for (let i = 0; i < 10 * page; i++) {
+      const role = values.next().value
+      if (!role) break
+      if (i >= 10 * (page - 1)) {
+        e.addField(`${++o}. #${zero(6, role.color.toString(16))}`, `<@&${role.id}>`)
+      }
+    }
+    reaction.message.edit({ embeds: [e] })
+    return
+  }
+  if (!embed.fields[index]) return
+  const color = parseInt(embed.fields[index].name.replace(/.*#(.*)/, '$1'), 16)
   const member = await reaction.message.guild.members.fetch(user.id)
   await member.roles.remove(member.roles.cache.filter(role => role.name === 'すごい染料'))
   roles.sort((a, b) => diffColor(color, a.color) - diffColor(color, b.color))
