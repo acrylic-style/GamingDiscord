@@ -189,7 +189,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
   if (index === -3) {
     // forward
     if (embed.footer.text !== user.tag) return
-    if (Math.floor(roles.length / 10) > page) return
+    if (page >= 13) return
     roles.sort((a, b) => diffColor(originalColor, a.color) - diffColor(originalColor, b.color))
     page++
     const values = roles.values()
