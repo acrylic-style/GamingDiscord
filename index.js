@@ -131,7 +131,7 @@ client.on('messageCreate', async msg => {
     logger.info(`Attempting to create ${promises.length} roles`)
     await Promise.all(promises)
     msg.reply('ロールの作成が完了しました。')
-  } else if (msg.member.permissions.has(8) && args[0] === '//removeall') {
+  } else if (msg.member.permissions.has(Discord.Permissions.FLAGS.MANAGE_ROLES) && args[0] === '//removeall') {
     const roles = await msg.guild.roles.fetch()
     await Promise.all(roles.filter(role => role.name === 'すごい染料').map(role => role.delete()))
     msg.reply('染料ロールをすべて削除しました。')
