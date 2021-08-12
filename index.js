@@ -10,7 +10,7 @@ const logger = LoggerFactory.getLogger('client', 'green')
 
 // these colors are just bad (hard to see)
 // #000000 is used as default color
-const bannedColors = [0x000000, 0x444444, 0x444488]
+const bannedColors = [0x000000, 0x444444]
 
 const emojis = {
   arrow_backward: '◀️',
@@ -112,8 +112,8 @@ client.on('messageCreate', async msg => {
     message.react(emojis.arrow_forward)
   } else if (msg.member.permissions.has(Discord.Permissions.FLAGS.MANAGE_ROLES) && args[0] === '//setup') {
     const roles = await msg.guild.roles.fetch()
-    if (250 - roles.size < 122) {
-      msg.reply(`ロール数の空きが122個必要です。(あと${122 - (250 - roles.size)}個)`)
+    if (250 - roles.size < 123) {
+      msg.reply(`ロール数の空きが123個必要です。(あと${123 - (250 - roles.size)}個)`)
       return
     }
     const arr = ['0', '4', '8', 'c', 'f']
