@@ -110,7 +110,7 @@ client.on('messageCreate', async msg => {
     message.react(emojis.nine)
     message.react(emojis.ten)
     message.react(emojis.arrow_forward)
-  } else if (msg.member.permissions.has(8) && args[0] === '//setup') {
+  } else if (msg.member.permissions.has(Discord.Permissions.FLAGS.MANAGE_ROLES) && args[0] === '//setup') {
     const roles = await msg.guild.roles.fetch()
     if (250 - roles.size < 122) {
       msg.reply(`ロール数の空きが122個必要です。(あと${122 - (250 - roles.size)}個)`)
