@@ -115,6 +115,7 @@ client.on('messageCreate', async msg => {
     const runUser = msg.author
     const runGuild = msg.guild
     const guildUser = runGuild.members.cache.get(`${runUser.id}`)
+    await msg.member.fetch()
     const guilduserRole = guildUser.roles.cache.find((role) => role.name === 'すごい染料')
     const embed = new Discord.MessageEmbed()
     embed.setColor('RED')
