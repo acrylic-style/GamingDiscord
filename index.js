@@ -123,7 +123,6 @@ client.on('messageCreate', async msg => {
     if(!guilduserRole) return msg.reply({ embeds: [embed] })
     await guildUser.roles.remove(guilduserRole)
     embed.setColor(guilduserRole.color)
-    embed.setTitle('すごい染料')
     embed.setDescription(`あなたの染料を削除しました。`)
     msg.reply({ embeds: [embed] })
 
