@@ -1,6 +1,6 @@
 const Discord = require('discord.js')
 const { LoggerFactory } = require('logger.js')
-const env = require('dotenv-safe').config().parsed
+require('dotenv').config()
 const client = new Discord.Client({
   intents: Discord.Intents.FLAGS.GUILD_MESSAGES | Discord.Intents.FLAGS.GUILD_MESSAGE_REACTIONS | Discord.Intents.FLAGS.GUILDS | Discord.Intents.FLAGS.GUILD_MEMBERS,
 })
@@ -223,4 +223,4 @@ client.on('messageReactionAdd', async (reaction, user) => {
 
 logger.info('Hello! Please turn on "server members intent" on your bot page if you haven\'t done so already!')
 logger.info('Logging in...')
-client.login(env.TOKEN)
+client.login(process.env.TOKEN)
