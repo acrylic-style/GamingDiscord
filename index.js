@@ -55,6 +55,7 @@ client.on('messageCreate', async msg => {
     embed.setTitle('コマンド')
     embed.addField('/set <RGB>', '色を設定します。指定した色が使用できない場合は一番近い色に設定されます。')
     embed.addField('/color [RGB]', '色を設定します。')
+    embed.addField('/remove', '自分が設定している色を削除します。\"すごい染料\"を付与していない場合はエラーが発生します。')
     if (msg.member.permissions.has(8)) {
       embed.addField('/setup', 'すごい染料を作成します。')
       embed.addField('/removeall', 'すごい染料をすべて削除します。')
@@ -110,6 +111,22 @@ client.on('messageCreate', async msg => {
     message.react(emojis.nine)
     message.react(emojis.ten)
     message.react(emojis.arrow_forward)
+  } else if(args[0] === '//remove') {
+    const runUser = msg.author
+    const runGuild = msg.guild
+    const guildUser = runGuild.members.cache.get(`${runUser.id}`)
+    await msg.member.fetch()
+    const guilduserRole = guildUser.roles.cache.find((role) => role.name === 'すごい染料')
+    const embed = new Discord.MessageEmbed()
+    embed.setColor('RED')
+    embed.setTitle('すごい染料')
+    embed.setDescription(`すごい染料があなたについていません。削除することに失敗しました。`)
+    if(!guilduserRole) return msg.reply({ embeds: [embed] })
+    await guildUser.roles.remove(guilduserRole)
+    embed.setColor(guilduserRole.color)
+    embed.setDescription(`あなたの染料を削除しました。`)
+    msg.reply({ embeds: [embed] })
+
   } else if (msg.member.permissions.has(Discord.Permissions.FLAGS.MANAGE_ROLES) && args[0] === '//setup') {
     const roles = await msg.guild.roles.fetch()
     if (250 - roles.size < 123) {
